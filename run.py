@@ -20,9 +20,6 @@ ENTERPRISE_URL = os.environ.get("ENTERPRISE_URL")
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 GITHUB_TOKEN_ENTERPRISE = os.environ.get("GITHUB_TOKEN_ENTERPRISE")
 
-if not GITHUB_TOKEN:
-    print("Warning: GITHUB_TOKEN not set. Public GitHub repositories will not be accessible.")
-
 if ENTERPRISE_URL and not GITHUB_TOKEN_ENTERPRISE:
     raise RuntimeError(f"GITHUB_TOKEN_ENTERPRISE environment variable required when ENTERPRISE_URL ({ENTERPRISE_URL}) is set.")
 
