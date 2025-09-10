@@ -46,6 +46,7 @@ You need to set a Github Token if you want to scan public repositories, and ente
 ```
 export GITHUB_TOKEN=xxxxxxxx
 export GITHUB_TOKEN_ENTERPRISE=xxxxxxx
+export ENTERPRISE_URL=github.contoso.com
 ```
 
 ### Install requisites
