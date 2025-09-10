@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import hcl2
 from packaging import version
+import getpass
 
 registry_cache = {}
 private_cache = {}
@@ -63,7 +64,6 @@ if ENTERPRISE_URL and not GITHUB_TOKEN_ENTERPRISE:
     print("=" * 80)
     
     try:
-        import getpass
         token = getpass.getpass("Enterprise GitHub token > ")
         
         # Validate the input token (basic check)
