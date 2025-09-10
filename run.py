@@ -26,6 +26,9 @@ if not GITHUB_TOKEN:
 if ENTERPRISE_URL and not GITHUB_TOKEN_ENTERPRISE:
     raise RuntimeError(f"GITHUB_TOKEN_ENTERPRISE environment variable required when ENTERPRISE_URL ({ENTERPRISE_URL}) is set.")
 
+if GITHUB_TOKEN_ENTERPRISE and not ENTERPRISE_URL:
+    raise RuntimeError(f"ENTERPRISE_URL environment variable required when GITHUB_TOKEN_ENTERPRISE is set.")
+
 if not GITHUB_TOKEN and not GITHUB_TOKEN_ENTERPRISE:
     raise RuntimeError("At least one of GITHUB_TOKEN or GITHUB_TOKEN_ENTERPRISE must be set.")
 
