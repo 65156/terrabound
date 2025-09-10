@@ -1,0 +1,4 @@
+PyYAML
+requests
+python-hcl2
+packaging
