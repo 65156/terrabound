@@ -64,7 +64,7 @@ export ENTERPRISE_URL=github.contoso.com
 ```
 
 ### Install pre-requisites
-pip install -r requirements.
+`pip install -r requirements.`
 
 ### Prepare repositories list (YAML)
 Configure repositories.yaml file for processing-
