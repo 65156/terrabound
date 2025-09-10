@@ -103,7 +103,13 @@ repositories:
 ```
 
 ### Run Terrabound
+```
 python run.py
 
-#### Optional - debugging
+# Enable debugging output
 python run.py --debug
+
+# Specify custom temp folder 
+python run.py --folder /path/to/temp/dir
+```
+
