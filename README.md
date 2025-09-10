@@ -79,5 +79,5 @@ repositories:
 ### Run
 python run.py
 
-#### Debugging
+#### Optional - Debugging
 python run.py --debug
