@@ -8,3 +8,12 @@ repositories:
       - repository-dsi31x # repository names
       - repository-dja012
       - repository-ds19fc
+  - org: "https://github.com/terraform-aws-modules"
+    list:
+      - "terraform-aws-vpc"
+      - "terraform-aws-eks"
+      - "terraform-aws-rds"
+  - org: "https://github.com/hashicorp"
+    pattern: "^terraform-provider-.*$"
+  - org: "https://github.com/gruntwork-io"
+    team: "core"  # Only works with GitHub token that has team access
