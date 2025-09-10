@@ -4,7 +4,7 @@ Terrabound is a terraform version constraint sniffer, it will audit a list of yo
 It will produce false positives if version constaints exist in any subfolders of the source module repositories as it simply uses pattern detection inside terraform blocks.
 
 ## Example Output
-````
+```
 ================================================================================
 TERRAFORM VERSION COMPATIBILITY ANALYSIS
  >>> Target Terraform Version: 1.10.5
@@ -33,12 +33,14 @@ Incompatible modules (3):
   ├─ File: /version.tf
   └─ Using:
       • Platform-Engineering-Services/iac-pes-isp-ibmc-wlz-nonprod-us-east-pr (module: roks)
-````
+```
 
 ## Usage
 ### Prepare Virtual Environment
+```
 python -m venv .venv
 source .venv/bin/activate
+```
 
 ### Set Environment Variables
 You need to set a Github Token if you want to scan public repositories, and enterprise if scanning any private module repositories or parent repositories.
@@ -49,7 +51,7 @@ export GITHUB_TOKEN_ENTERPRISE=xxxxxxx
 export ENTERPRISE_URL=github.contoso.com
 ```
 
-### Install requisites
+### Install pre-requisites
 pip install -r requirements.
 
 ### Prepare Yaml
