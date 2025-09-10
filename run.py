@@ -1122,7 +1122,7 @@ def main():
                         print(f"[DEBUG] Falling back to git clone for {source} (version: {version})")
                     
                     # Use resolved registry URL if available, otherwise use original source
-                    clone_url = registry_source_url if (ns and name and provider and registry_source_url) else source
+                    clone_url = registry_source_url if (ns and name and provider and registry_source_url) else source # type: ignore
                     
                     # Ensure proper .git extension
                     if clone_url and not clone_url.endswith('.git'):
