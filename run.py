@@ -16,12 +16,18 @@ module_results = {}  # Key: (source, version), Value: scan results
 repo_cache = {}  # Key: (repo_url, version), Value: (all_tf_contents, api_error)
 
 
-ENTERPRISE_URL = os.environ.get("ENTERPRISE_URL", "github.ibm.com")
-GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN","null")
-GITHUB_TOKEN_ENTERPRISE = os.environ.get("GITHUB_TOKEN_ENTERPRISE","null")
+ENTERPRISE_URL = os.environ.get("ENTERPRISE_URL")
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
+GITHUB_TOKEN_ENTERPRISE = os.environ.get("GITHUB_TOKEN_ENTERPRISE")
 
 if not GITHUB_TOKEN:
-    raise RuntimeError("GITHUB_TOKEN environment variable not set.")
+    print("Warning: GITHUB_TOKEN not set. Public GitHub repositories will not be accessible.")
+
+if ENTERPRISE_URL and not GITHUB_TOKEN_ENTERPRISE:
+    raise RuntimeError(f"GITHUB_TOKEN_ENTERPRISE environment variable required when ENTERPRISE_URL ({ENTERPRISE_URL}) is set.")
+
+if not GITHUB_TOKEN and not GITHUB_TOKEN_ENTERPRISE:
+    raise RuntimeError("At least one of GITHUB_TOKEN or GITHUB_TOKEN_ENTERPRISE must be set.")
 
 def get_headers(source_url):
     # Use enterprise token if source_url contains ENTERPRISE_URL, else use public token
