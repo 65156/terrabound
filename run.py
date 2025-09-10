@@ -17,8 +17,8 @@ repo_cache = {}  # Key: (repo_url, version), Value: (all_tf_contents, api_error)
 
 
 ENTERPRISE_URL = os.environ.get("ENTERPRISE_URL", "github.ibm.com")
-GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
-GITHUB_TOKEN_ENTERPRISE = os.environ.get("GITHUB_TOKEN_ENTERPRISE")
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN","null")
+GITHUB_TOKEN_ENTERPRISE = os.environ.get("GITHUB_TOKEN_ENTERPRISE","null")
 
 if not GITHUB_TOKEN:
     raise RuntimeError("GITHUB_TOKEN environment variable not set.")
