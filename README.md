@@ -67,7 +67,7 @@ export ENTERPRISE_URL=github.contoso.com
 `pip install -r requirements.`
 
 ### Prepare repositories list (YAML)
-Configure repositories.yaml file for processing-
+Configure repositories.yaml file for processing (must be in same directory as run.py)
 
 Supports
 - regex pattern filtering.
