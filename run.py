@@ -335,11 +335,15 @@ def normalize_module_key(source, version):
             repo_url = source
     else:
         # Extract repo URL for direct Git URLs (ignore subdirectory and query params except ref)
-        repo_pattern = (
-            rf"(git@{re.escape(ENTERPRISE_URL)}:[^/]+/[^/.]+\.git"
-            rf"|https://{re.escape(ENTERPRISE_URL)}/[^/]+/[^/.]+\.git"
-            r"|https://github\.com/[^/]+/[^/.]+\.git)"
-        )
+        if ENTERPRISE_URL:
+            repo_pattern = (
+                rf"(git@{re.escape(ENTERPRISE_URL)}:[^/]+/[^/.]+\.git"
+                rf"|https://{re.escape(ENTERPRISE_URL)}/[^/]+/[^/.]+\.git"
+                r"|https://github\.com/[^/]+/[^/.]+\.git)"
+            )
+        else:
+            # Only include GitHub.com patterns when ENTERPRISE_URL is not set
+            repo_pattern = r"(https://github\.com/[^/]+/[^/.]+\.git)"
         repo_match = re.match(repo_pattern, source)
         repo_url = repo_match.group(1) if repo_match else source
         
@@ -518,7 +522,10 @@ def scan_private_module(source_url, ref=None, version=None):
         env = os.environ.copy()
         env["GIT_ASKPASS"] = "echo"
         env["GIT_TERMINAL_PROMPT"] = "0"
-        env["GITHUB_TOKEN"] = GITHUB_TOKEN
+        # Only set tokens if they exist
+        if GITHUB_TOKEN:
+            env["GITHUB_TOKEN"] = GITHUB_TOKEN
+
         checked_out = False
         subprocess.run(["git", "-C", tmpdir, "fetch", "--tags", "origin"], stdout=None if DEBUG else subprocess.DEVNULL, stderr=None if DEBUG else subprocess.DEVNULL, check=True, env=env)
         
@@ -630,20 +637,29 @@ def parse_github_source_url(source_url):
     Robustly parse GitHub and GitHub Enterprise repo URLs.
     Returns dict with org, repo, path, ref.
     """
-    patterns = [
-        # git::https://<ENTERPRISE_URL>/org/repo.git//subdir?ref=branch
-        rf"^(?:git::)?https://{re.escape(ENTERPRISE_URL)}/(?P<org>[^/]+)/(?P<repo>[^/.]+)(?:\.git)?(?:\/\/(?P<path>[^?]+))?(?:\?ref=(?P<ref>[^&]+))?",
-        # https://<ENTERPRISE_URL>/org/repo.git?ref=branch
-        rf"^https://{re.escape(ENTERPRISE_URL)}/(?P<org>[^/]+)/(?P<repo>[^/.]+)(?:\.git)?(?:\?ref=(?P<ref>[^&]+))?",
-        # git@<ENTERPRISE_URL>:org/repo.git?ref=branch
-        rf"^git@{re.escape(ENTERPRISE_URL)}:(?P<org>[^/]+)/(?P<repo>[^/.]+)\.git(?:\?ref=(?P<ref>[^&]+))?",
+    patterns = []
+    
+    # Only add enterprise patterns if ENTERPRISE_URL is set
+    if ENTERPRISE_URL:
+        patterns.extend([
+            # git::https://<ENTERPRISE_URL>/org/repo.git//subdir?ref=branch
+            rf"^(?:git::)?https://{re.escape(ENTERPRISE_URL)}/(?P<org>[^/]+)/(?P<repo>[^/.]+)(?:\.git)?(?:\/\/(?P<path>[^?]+))?(?:\?ref=(?P<ref>[^&]+))?",
+            # https://<ENTERPRISE_URL>/org/repo.git?ref=branch
+            rf"^https://{re.escape(ENTERPRISE_URL)}/(?P<org>[^/]+)/(?P<repo>[^/.]+)(?:\.git)?(?:\?ref=(?P<ref>[^&]+))?",
+            # git@<ENTERPRISE_URL>:org/repo.git?ref=branch
+            rf"^git@{re.escape(ENTERPRISE_URL)}:(?P<org>[^/]+)/(?P<repo>[^/.]+)\.git(?:\?ref=(?P<ref>[^&]+))?",
+        ])
+    
+    # Always add public GitHub patterns
+    patterns.extend([
         # https://github.com/org/repo.git//subdir?ref=branch
         r"^(?:git::)?https://github\.com/(?P<org>[^/]+)/(?P<repo>[^/.]+)(?:\.git)?(?:\/\/(?P<path>[^?]+))?(?:\?ref=(?P<ref>[^&]+))?",
         # https://github.com/org/repo.git?ref=branch
         r"^https://github\.com/(?P<org>[^/]+)/(?P<repo>[^/.]+)(?:\.git)?(?:\?ref=(?P<ref>[^&]+))?",
         # git@github.com:org/repo.git?ref=branch
         r"^git@github\.com:(?P<org>[^/]+)/(?P<repo>[^/.]+)\.git(?:\?ref=(?P<ref>[^&]+))?",
-    ]
+    ])
+
     for pat in patterns:
         match = re.match(pat, source_url)
         if match:
@@ -656,6 +672,14 @@ def parse_github_source_url(source_url):
     return None
 
 def get_module_dependencies_from_github(org, repo, ref=None, path=None):
+    
+    # Construct source_url from org and repo parameters
+    source_url = f"https://github.com/{org}/{repo}"
+    
+    # If using enterprise GitHub, use that URL instead
+    if ENTERPRISE_URL:
+        source_url = f"https://{ENTERPRISE_URL}/{org}/{repo}"
+    
     # Use GitHub API to get files at ref (tag/branch/commit)
     api_url = f"https://api.github.com/repos/{org}/{repo}/contents"
     if path:
@@ -663,6 +687,8 @@ def get_module_dependencies_from_github(org, repo, ref=None, path=None):
     params = {}
     if ref:
         params["ref"] = ref
+
+    # Now source_url is defined for get_headers
     resp = requests.get(api_url, headers=get_headers(source_url), params=params)
     if resp.status_code != 200:
         print(f"Failed to fetch {api_url} ({resp.status_code})")
@@ -701,22 +727,25 @@ def parse_private_source(source_url):
     subdir = None
     ref = None
 
-    # SSH format: git@github.contoso.com:org/repo.git?ref=branch
-    ssh_pattern = rf"git@{re.escape(ENTERPRISE_URL)}:([^/]+)/([^/.]+)\.git(\?ref=([^\s/]+))?"
-    ssh_match = re.match(ssh_pattern, source_url)
-    if ssh_match:
-        org = ssh_match.group(1)
-        repo = ssh_match.group(2)
-        repo_url = f"https://{ENTERPRISE_URL}/{org}/{repo}.git"
-        ref = ssh_match.group(4)
-    else:
-        # HTTPS format: https://github.contoso.com/org/repo.git//subdir?ref=branch
-        https_pattern = rf"(https://{re.escape(ENTERPRISE_URL)}/[^/]+/[^/.]+\.git)(//([^\?]+))?(\?ref=([^\s/]+))?"
-        https_match = re.match(https_pattern, source_url)
-        if https_match:
-            repo_url = https_match.group(1)
-            subdir = https_match.group(3)
-            ref = https_match.group(5)
+    # Only use enterprise URL patterns if ENTERPRISE_URL is set
+    if ENTERPRISE_URL:
+        # SSH format: git@github.contoso.com:org/repo.git?ref=branch
+        ssh_pattern = rf"git@{re.escape(ENTERPRISE_URL)}:([^/]+)/([^/.]+)\.git(\?ref=([^\s/]+))?"
+        ssh_match = re.match(ssh_pattern, source_url)
+        if ssh_match:
+            org = ssh_match.group(1)
+            repo = ssh_match.group(2)
+            repo_url = f"https://{ENTERPRISE_URL}/{org}/{repo}.git"
+            ref = ssh_match.group(4)
+        else:
+            # HTTPS format: https://github.contoso.com/org/repo.git//subdir?ref=branch
+            https_pattern = rf"(https://{re.escape(ENTERPRISE_URL)}/[^/]+/[^/.]+\.git)(//([^\?]+))?(\?ref=([^\s/]+))?"
+            https_match = re.match(https_pattern, source_url)
+            if https_match:
+                repo_url = https_match.group(1)
+                subdir = https_match.group(3)
+                ref = https_match.group(5)
+
     return repo_url, subdir, ref
 
 def parse_version_constraint(constraint):
@@ -933,7 +962,7 @@ def main():
                     if DEBUG:
                         print(f"[DEBUG] Full URL with submodule: {registry_source_url}")
                 
-                if "github.com" in registry_source_url or ENTERPRISE_URL in registry_source_url:
+                if "github.com" in registry_source_url or (ENTERPRISE_URL and ENTERPRISE_URL in registry_source_url):
                     try:
                         constraints = scan_module_version_dependencies_api(registry_source_url, version)
                         # 0 constraints is a valid result - don't treat as failure
@@ -972,7 +1001,7 @@ def main():
                     target_ref = None
                 
                 # Try API first for branch-based repos
-                if "github.com" in repo_url or ENTERPRISE_URL in repo_url:
+                if "github.com" in repo_url or (ENTERPRISE_URL and ENTERPRISE_URL in repo_url):
                     try:
                         constraints = scan_module_version_dependencies_api(source, None)
                         # 0 constraints is a valid result - don't treat as failure
@@ -998,14 +1027,14 @@ def main():
                             if '//github.com' not in clone_url and f'//{ENTERPRISE_URL}' not in clone_url:
                                 # This is a submodule path, not the protocol
                                 repo_part, submodule_part = clone_url.split('//', 1)
-                                if ('github.com' in repo_part or ENTERPRISE_URL in repo_part):
+                                if ('github.com' in repo_part or (ENTERPRISE_URL and ENTERPRISE_URL in repo_part)):
                                     clone_url = f"{repo_part}.git//{submodule_part}"
                         else:
                             # No submodule path, safe to add .git
-                            if ('github.com' in clone_url or ENTERPRISE_URL in clone_url):
+                            if ('github.com' in clone_url or (ENTERPRISE_URL and ENTERPRISE_URL in clone_url)):
                                 clone_url += '.git'
                     
-                    if ".git" in clone_url or "github.com" in clone_url or ENTERPRISE_URL in clone_url:
+                    if ".git" in clone_url or "github.com" in clone_url or (ENTERPRISE_URL and ENTERPRISE_URL in clone_url):
                         if DEBUG:
                             print(f"[DEBUG] Cloning from: {clone_url}")
                         
@@ -1020,7 +1049,7 @@ def main():
                     print(f"[DEBUG] Version specified: {version}")
                 
                 # Try GitHub API first for versioned modules
-                if "github.com" in source or ENTERPRISE_URL in source:
+                if "github.com" in source or ENTERPRISE_URL and ENTERPRISE_URL in source:
                     try:
                         constraints = scan_module_version_dependencies_api(source, version)
                         # 0 constraints is a valid result - don't treat as failure
@@ -1048,14 +1077,14 @@ def main():
                             if '//github.com' not in clone_url and f'//{ENTERPRISE_URL}' not in clone_url:
                                 # This is a submodule path, not the protocol
                                 repo_part, submodule_part = clone_url.split('//', 1)
-                                if ('github.com' in repo_part or ENTERPRISE_URL in repo_part):
+                                if ('github.com' in repo_part or (ENTERPRISE_URL and ENTERPRISE_URL in repo_part)):
                                     clone_url = f"{repo_part}.git//{submodule_part}"
                         else:
                             # No submodule path, safe to add .git
-                            if ('github.com' in clone_url or ENTERPRISE_URL in clone_url):
+                            if ('github.com' in clone_url or (ENTERPRISE_URL and ENTERPRISE_URL in clone_url)):
                                 clone_url += '.git'
 
-                    if ".git" in clone_url or "github.com" in clone_url or ENTERPRISE_URL in clone_url:
+                    if ".git" in clone_url or "github.com" in clone_url or (ENTERPRISE_URL and ENTERPRISE_URL in clone_url):
                         if DEBUG:
                             print(f"[DEBUG] Cloning from: {clone_url}")
                         
