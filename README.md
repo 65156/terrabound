@@ -78,9 +78,11 @@ Supports
 ```
 terraform_version: 1.10.5
 repositories:
+  # Scan repositories matching a pattern in a GHE environment
   - org: https://github.contoso.com/organisation01/
     team: foxtrot-3 # github enterprise team name
     pattern: '^repository-.*$' # will select all repositories for that team that match the pattern.
+  # Scan specific repositories in a GHE Environment
   - org: https://github.contoso.com/organisation02
     list: 
       - repository-dsi31x # repository names
