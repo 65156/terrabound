@@ -20,14 +20,69 @@ ENTERPRISE_URL = os.environ.get("ENTERPRISE_URL")
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 GITHUB_TOKEN_ENTERPRISE = os.environ.get("GITHUB_TOKEN_ENTERPRISE")
 
-if ENTERPRISE_URL and not GITHUB_TOKEN_ENTERPRISE:
-    raise RuntimeError(f"GITHUB_TOKEN_ENTERPRISE environment variable required when ENTERPRISE_URL ({ENTERPRISE_URL}) is set.")
-
-if GITHUB_TOKEN_ENTERPRISE and not ENTERPRISE_URL:
-    raise RuntimeError(f"ENTERPRISE_URL environment variable required when GITHUB_TOKEN_ENTERPRISE is set.")
-
 if not GITHUB_TOKEN and not GITHUB_TOKEN_ENTERPRISE:
     raise RuntimeError("At least one of GITHUB_TOKEN or GITHUB_TOKEN_ENTERPRISE must be set.")
+
+if GITHUB_TOKEN_ENTERPRISE and not ENTERPRISE_URL:
+    print("\n" + "=" * 80)
+    print("Enterprise GitHub token detected, but no Enterprise URL is set.")
+    print("Please enter your Enterprise GitHub URL (e.g., github.mycompany.com):")
+    print("=" * 80)
+    
+    try:
+        input_url = input("Enterprise URL > ").strip()
+        
+        # Strip http:// or https:// if the user included them
+        if input_url.startswith("http://"):
+            input_url = input_url[7:]
+        elif input_url.startswith("https://"):
+            input_url = input_url[8:]
+        
+        # Validate the input URL (basic check)
+        if not input_url or "//" in input_url or " " in input_url:
+            print("Invalid Enterprise URL. Please set the ENTERPRISE_URL environment variable and try again.")
+            sys.exit(1)
+        
+        ENTERPRISE_URL = input_url
+        print(f"Using Enterprise URL: {ENTERPRISE_URL}")
+        
+        # Update the environment variable for subprocesses
+        os.environ["ENTERPRISE_URL"] = ENTERPRISE_URL
+    except KeyboardInterrupt:
+        print("\nOperation cancelled by user.")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error getting Enterprise URL: {str(e)}")
+        print("Please set the ENTERPRISE_URL environment variable and try again.")
+        sys.exit(1)
+
+if ENTERPRISE_URL and not GITHUB_TOKEN_ENTERPRISE:
+    print("\n" + "=" * 80)
+    print(f"Enterprise GitHub URL ({ENTERPRISE_URL}) is set, but no Enterprise GitHub token is provided.")
+    print("Please enter your Enterprise GitHub token (will not be displayed):")
+    print("=" * 80)
+    
+    try:
+        import getpass
+        token = getpass.getpass("Enterprise GitHub token > ")
+        
+        # Validate the input token (basic check)
+        if not token or len(token) < 10:  # Most GitHub tokens are much longer
+            print("Invalid GitHub token. Please set the GITHUB_TOKEN_ENTERPRISE environment variable and try again.")
+            sys.exit(1)
+        
+        GITHUB_TOKEN_ENTERPRISE = token
+        print("Enterprise GitHub token accepted.")
+        
+        # Update the environment variable for subprocesses
+        os.environ["GITHUB_TOKEN_ENTERPRISE"] = GITHUB_TOKEN_ENTERPRISE
+    except KeyboardInterrupt:
+        print("\nOperation cancelled by user.")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error getting Enterprise GitHub token: {str(e)}")
+        print("Please set the GITHUB_TOKEN_ENTERPRISE environment variable and try again.")
+        sys.exit(1)
 
 def get_headers(source_url):
     # Use enterprise token if source_url contains ENTERPRISE_URL, else use public token
