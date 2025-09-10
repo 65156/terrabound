@@ -4,6 +4,8 @@ Terrabound is a terraform version constraint sniffer, it will audit a list of yo
 It will produce false positives if version constaints exist in any subfolders of the source module repositories as it simply uses pattern detection inside terraform blocks.
 
 ## Example Output
+
+Failure
 ```
 ================================================================================
 TERRAFORM VERSION COMPATIBILITY ANALYSIS
@@ -33,6 +35,16 @@ Incompatible modules (3):
   ├─ File: /version.tf
   └─ Using:
       • organisation02/repository-ds19fc (module: roks)
+```
+
+Success
+```
+================================================================================
+TERRAFORM VERSION COMPATIBILITY ANALYSIS
+ >>> Target Terraform Version: 1.10.5
+================================================================================
+
+✅ SUCCESS: Terraform 1.10.5 is compatible with all scanned modules!
 ```
 
 ## Usage
