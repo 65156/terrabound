@@ -1,7 +1,7 @@
 # Terrabound
-Terrabound is a terraform version constraint sniffer, it will audit a list of your existing code public or private github repositories, discovering terraform modules and then checking the module source code repositories for version constraints.
+Terrabound is a terraform version constraint sniffer, it will audit a list of your existing public Github or GHE github repositories, discovering terraform modules and then checking the module source code repositories for version constraints.
 
-It may produce false positives or misleading version constraint guidace if version constaints exist in any submodules of the source module repositories.
+It may produce false positives or misleading version constraint guidance if version constaints exist in any subfolders of the source module repositories.
 
 ## Example Output
 ````
