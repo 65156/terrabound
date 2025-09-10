@@ -76,8 +76,8 @@ repositories:
       - sports-pipelines-vi14ju
 ```
 
-## Run Terrabound
+### Run
 python run.py
 
-# Run Terrabound with verbose debug.
+#### Debugging
 python run.py --debug
