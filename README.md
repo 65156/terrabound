@@ -43,7 +43,7 @@ source .venv/bin/activate
 ```
 
 ### Set Environment Variables
-You need to set a Github Token if you want to scan public repositories, and enterprise if scanning any private module repositories or parent repositories.
+You need to set GITHUB_TOKEN if you want to scan public Github repositories and GITHUB_TOKEN_ENTERPRISE & ENTERPRISE_URL if scanning any repositories on GHE.
 
 ```
 export GITHUB_TOKEN=xxxxxxxx
