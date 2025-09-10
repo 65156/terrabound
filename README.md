@@ -86,6 +86,18 @@ repositories:
       - repository-dsi31x # repository names
       - repository-dja012
       - repository-ds19fc
+  # Scan specific repositories in a public GitHub organization
+  - org: "https://github.com/terraform-aws-modules"
+    list:
+      - "terraform-aws-vpc"
+      - "terraform-aws-eks"
+      - "terraform-aws-rds"
+  # Scan repositories matching a pattern
+  - org: "https://github.com/hashicorp"
+    pattern: "^terraform-provider-.*$"
+  # Scan repositories from a specific GitHub team
+  - org: "https://github.com/gruntwork-io"
+    team: "core"  # Only works with GitHub token that has team access
 ```
 
 ### Run
