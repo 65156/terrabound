@@ -1,15 +1,10 @@
 terraform_version: 1.10.5
 repositories:
-  - org: https://github.ibm.com/Platform-Engineering-Services/
-    #team: pes-ibm-sports-delivery
+  - org: https://github.contoso.com/organisation01/
+    team: foxtrot-3 # github enterprise team name
+    pattern: '^repository-.*$' # will select all repositories for that team that match the pattern.
+  - org: https://github.contoso.com/organisation02
     list: 
-      - iac-pes-isp-ibmc-wlz-nonprod-us-east-pr
-      - iac-pes-isp-wlz-pes-nonprod-pr
-      - iac-pes-isp-wld-pes-nonprod-pr
-      - iac-pes-isp-wlz-pes-nonprod-us-east-1-pr
-  #  pattern: '^iac-pes-isp.*$'
-  # - org: https://github.ibm.com/IBM-Sports
-  #   list: 
-  #     - sports-security-clearance-bhd92
-  #     # - sports-cloud-sandbox-x81js
-  #     # - sports-pipelines-vi14ju
+      - repository-dsi31x # repository names
+      - repository-dja012
+      - repository-ds19fc
