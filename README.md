@@ -20,19 +20,19 @@ Incompatible modules (3):
   ├─ Constraint: >= 1.3, <1.6.0
   ├─ File: /versions.tf
   └─ Using:
-      • Platform-Engineering-Services/iac-pes-isp-ibmc-wlz-nonprod-us-east-pr (module: sg)
+      • organisation01/repositoryB (module: sg)
 
 📦 Module: terraform-ibm-modules/base-ocp-vpc/ibm
   ├─ Version: 3.18.3
   ├─ Constraint: >= 1.3.0, < 1.7.0
   ├─ File: /modules/fscloud/version.tf
   └─ Using:
-      • Platform-Engineering-Services/iac-pes-isp-ibmc-wlz-nonprod-us-east-pr (module: roks)
+      • organisation01/repositoryA (module: roks)
   ├─ Version: 3.18.3
   ├─ Constraint: >= 1.3.0, < 1.7.0
   ├─ File: /version.tf
   └─ Using:
-      • Platform-Engineering-Services/iac-pes-isp-ibmc-wlz-nonprod-us-east-pr (module: roks)
+      • organisation02/another-repository (module: roks)
 ```
 
 ## Usage
@@ -66,14 +66,14 @@ Supports
 ```
 terraform_version: 1.10.5
 repositories:
-  - org: https://github.ibm.com/Platform-Engineering-Services/
-    team: pes-ibm-sports-delivery
-    pattern: '^iac-pes-isp.*$' # will select all repositories for that team that match the pattern.
-  - org: https://github.ibm.com/IBM-Sports
+  - org: https://github.contoso.com/organisation01/
+    team: foxtrot-3 # github enterprise team name
+    pattern: '^repository.*$' # will select all repositories for that team that match the pattern.
+  - org: https://github.contoso.com/organisation02
     list: 
-      - sports-security-clearance-bhd92
-      - sports-cloud-sandbox-x81js
-      - sports-pipelines-vi14ju
+      - repositoryA # repository names
+      - repositoryB
+      - another-repository
 ```
 
 ### Run
