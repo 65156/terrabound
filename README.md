@@ -104,6 +104,7 @@ repositories:
 
 ### Run Terrabound
 ```
+# Typical execution
 python run.py
 
 # Enable debugging output
