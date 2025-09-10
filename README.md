@@ -48,7 +48,7 @@ export GITHUB_TOKEN=xxxxxxxx
 export GITHUB_TOKEN_ENTERPRISE=xxxxxxx
 ```
 
-### Install requisits
+### Install requisites
 pip install -r requirements.
 
 ### Prepare Yaml
@@ -65,7 +65,7 @@ terraform_version: 1.10.5
 repositories:
   - org: https://github.ibm.com/Platform-Engineering-Services/
     team: pes-ibm-sports-delivery
-    pattern: '^iac-pes-isp.*$'
+    pattern: '^iac-pes-isp.*$' # will select all repositories for that team that match the pattern.
   - org: https://github.ibm.com/IBM-Sports
     list: 
       - sports-security-clearance-bhd92
