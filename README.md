@@ -20,19 +20,19 @@ Incompatible modules (3):
   ├─ Constraint: >= 1.3, <1.6.0
   ├─ File: /versions.tf
   └─ Using:
-      • organisation01/repositoryB (module: sg)
+      • organisation01/repository-kd19sx (module: sg)
 
 📦 Module: terraform-ibm-modules/base-ocp-vpc/ibm
   ├─ Version: 3.18.3
   ├─ Constraint: >= 1.3.0, < 1.7.0
   ├─ File: /modules/fscloud/version.tf
   └─ Using:
-      • organisation01/repositoryA (module: roks)
+      • organisation01/repository-kd19sx (module: roks)
   ├─ Version: 3.18.3
   ├─ Constraint: >= 1.3.0, < 1.7.0
   ├─ File: /version.tf
   └─ Using:
-      • organisation02/another-repository (module: roks)
+      • organisation02/repository-ds19fc (module: roks)
 ```
 
 ## Usage
@@ -68,12 +68,12 @@ terraform_version: 1.10.5
 repositories:
   - org: https://github.contoso.com/organisation01/
     team: foxtrot-3 # github enterprise team name
-    pattern: '^repository.*$' # will select all repositories for that team that match the pattern.
+    pattern: '^repository-.*$' # will select all repositories for that team that match the pattern.
   - org: https://github.contoso.com/organisation02
     list: 
-      - repositoryA # repository names
-      - repositoryB
-      - another-repository
+      - repository-dsi31x # repository names
+      - repository-dja012
+      - repository-ds19fc
 ```
 
 ### Run
